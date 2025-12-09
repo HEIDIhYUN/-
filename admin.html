@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌸 管理员后台</title>
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.15.0/dist/av-min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,6 +22,21 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 105, 180, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: white;
+            font-size: 24px;
         }
 
         .header {
@@ -113,6 +129,7 @@
             border-radius: 50%;
             border: 3px solid #ffb6d9;
             margin: 0 auto 10px;
+            object-fit: cover;
         }
 
         .employee-name {
@@ -125,10 +142,6 @@
         .employee-stats {
             font-size: 14px;
             color: #666;
-        }
-
-        .calendar-view {
-            margin-top: 20px;
         }
 
         .month-nav {
@@ -269,13 +282,14 @@
     </style>
 </head>
 <body>
+    <div class="loading" id="loading">加载中...</div>
+
     <div class="container">
         <div class="header">
             <h1>🌸 管理员后台 🌸</h1>
             <p style="color: #ff69b4;">查看和管理所有员工考勤</p>
         </div>
 
-        <!-- 通知管理 -->
         <div class="card" id="noticeCard">
             <div class="card-title">📢 发布通知</div>
             <div class="notice-form">
@@ -283,23 +297,20 @@
                 <button class="btn-primary" onclick="publishNotice()">发布</button>
             </div>
             <div id="currentNotice" style="padding: 15px; background: #fff0f6; border-radius: 10px; color: #ff1493;">
-                当前通知: <span id="noticeText">暂无通知</span>
+                当前通知: <span id="noticeText">加载中...</span>
             </div>
         </div>
 
-        <!-- 员工列表 -->
         <div class="card" id="employeeListCard">
             <div class="card-title">👥 员工列表</div>
             <div class="employee-list" id="employeeList">
                 <div class="empty-state">
                     <div class="empty-state-icon">📋</div>
-                    <p>暂无员工数据</p>
-                    <p style="font-size: 14px; margin-top: 10px;">员工提交考勤后会自动显示在这里</p>
+                    <p>加载中...</p>
                 </div>
             </div>
         </div>
 
-        <!-- 员工详情 -->
         <div class="card" id="employeeDetailCard" style="display: none;">
             <button class="back-btn" onclick="backToList()">← 返回列表</button>
             
@@ -311,17 +322,14 @@
                 </div>
             </div>
 
-            <!-- 统计信息 -->
             <div class="stats-grid" id="statsGrid"></div>
 
-            <!-- 月份导航 -->
             <div class="month-nav">
                 <button class="month-btn" onclick="changeDetailMonth(-1)">←</button>
                 <div class="month-display" id="detailMonthDisplay"></div>
                 <button class="month-btn" onclick="changeDetailMonth(1)">→</button>
             </div>
 
-            <!-- 考勤日历 -->
             <div class="calendar-view">
                 <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
                     <div style="display: flex; align-items: center; gap: 5px;">
@@ -343,6 +351,12 @@
     </div>
 
     <script>
+        AV.init({
+            appId: 'p5ZTLy8yMc4i8iPnIYUIZpfk-gzGzoHsz',
+            appKey: 'VFnGdGETCRBPN4qTicpFx7If',
+            serverURL: 'https://p5ztly8y.lc-cn-n1-shared.com'
+        });
+
         const statusIcons = {
             'normal': '🏢',
             'field': '⛰️',
@@ -359,47 +373,145 @@
 
         let currentEmployee = null;
         let detailDate = new Date();
+        let allEmployees = [];
 
-        // 初始化
-        function init() {
-            loadNotice();
-            loadEmployees();
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
         }
 
-        // 通知管理
-        function loadNotice() {
-            const notice = localStorage.getItem('adminNotice') || '欢迎使用考勤系统!记得每天打卡哦~';
-            document.getElementById('noticeText').textContent = notice;
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
         }
 
-        function publishNotice() {
+        async function init() {
+            showLoading();
+            await loadNotice();
+            await loadEmployees();
+            hideLoading();
+        }
+
+        async function loadNotice() {
+            try {
+                const query = new AV.Query('Notice');
+                query.descending('createdAt');
+                query.limit(1);
+                const results = await query.find();
+                
+                if (results.length > 0) {
+                    document.getElementById('noticeText').textContent = results[0].get('content');
+                } else {
+                    document.getElementById('noticeText').textContent = '暂无通知';
+                }
+            } catch (error) {
+                console.error('加载通知失败:', error);
+                document.getElementById('noticeText').textContent = '加载失败';
+            }
+        }
+
+        async function publishNotice() {
             const notice = document.getElementById('noticeInput').value.trim();
             if (!notice) {
                 alert('请输入通知内容!');
                 return;
             }
-            localStorage.setItem('adminNotice', notice);
-            document.getElementById('noticeText').textContent = notice;
-            document.getElementById('noticeInput').value = '';
-            alert('通知发布成功!');
+
+            showLoading();
+            
+            try {
+                const Notice = AV.Object.extend('Notice');
+                const noticeObj = new Notice();
+                noticeObj.set('content', notice);
+                await noticeObj.save();
+                
+                document.getElementById('noticeText').textContent = notice;
+                document.getElementById('noticeInput').value = '';
+                hideLoading();
+                alert('通知发布成功!');
+            } catch (error) {
+                console.error('发布通知失败:', error);
+                hideLoading();
+                alert('发布失败,请重试!');
+            }
         }
 
-        // 加载员工列表
-        function loadEmployees() {
-            // 模拟数据 - 实际使用时需要从服务器获取
-            const employees = getEmployeesFromStorage();
-            
-            if (employees.length === 0) {
-                return;
-            }
+        async function loadEmployees() {
+            try {
+                const query = new AV.Query('Users');
+                query.descending('createdAt');
+                const users = await query.find();
+                
+                if (users.length === 0) {
+                    document.getElementById('employeeList').innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <p>暂无员工数据</p>
+                            <p style="font-size: 14px; margin-top: 10px;">员工提交考勤后会自动显示在这里</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-            const html = employees.map(emp => `
-                <div class="employee-card" onclick='viewEmployee(${JSON.stringify(emp).replace(/'/g, "&apos;")})'>
-                    <img src="${emp.avatar || 'https://via.placeholder.com/80/ffb6d9/ffffff?text=' + (emp.nickname || '?')}" 
-                         alt="头像" class="employee-avatar">
-                    <div class="employee-name">${emp.nickname || '未命名'}</div>
+                allEmployees = [];
+                const loadPromises = users.map(async (user) => {
+                    const userId = user.id;
+                    const nickname = user.get('nickname') || '未命名';
+                    const avatar = user.get('avatar') || 'https://via.placeholder.com/80/ffb6d9/ffffff?text=?';
+                    
+                    const attendanceQuery = new AV.Query('Attendance');
+                    attendanceQuery.equalTo('userId', userId);
+                    const attendance = await attendanceQuery.find();
+                    
+                    const stats = {
+                        normal: 0,
+                        field: 0,
+                        trip: 0,
+                        leave: 0
+                    };
+                    
+                    const attendanceData = {};
+                    attendance.forEach(record => {
+                        const status = record.get('status');
+                        const date = record.get('date');
+                        const location = record.get('location');
+                        
+                        stats[status]++;
+                        attendanceData[date] = {
+                            status: status,
+                            location: location
+                        };
+                    });
+                    
+                    allEmployees.push({
+                        id: userId,
+                        nickname: nickname,
+                        avatar: avatar,
+                        stats: stats,
+                        attendance: attendanceData
+                    });
+                });
+
+                await Promise.all(loadPromises);
+                
+                renderEmployeeList();
+            } catch (error) {
+                console.error('加载员工失败:', error);
+                document.getElementById('employeeList').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <p>加载失败</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderEmployeeList() {
+            const html = allEmployees.map(emp => `
+                <div class="employee-card" onclick='viewEmployee(${JSON.stringify(emp).replace(/'/g, "&#39;")})'>
+                    <img src="${emp.avatar}" alt="头像" class="employee-avatar">
+                    <div class="employee-name">${emp.nickname}</div>
                     <div class="employee-stats">
-                        ${getEmployeeStats(emp.attendance)}
+                        正常${emp.stats.normal}天 野外${emp.stats.field}天<br>
+                        出差${emp.stats.trip}天 请假${emp.stats.leave}天
                     </div>
                 </div>
             `).join('');
@@ -407,46 +519,6 @@
             document.getElementById('employeeList').innerHTML = html;
         }
 
-        // 从localStorage获取员工数据
-        function getEmployeesFromStorage() {
-            const employees = [];
-            
-            // 这里需要一个约定：每个员工的数据存储在独立的key中
-            // 实际应用中应该有一个中央数据库
-            
-            // 示例：假设员工导出的数据被管理员导入
-            const sampleData = localStorage.getItem('employeeData');
-            if (sampleData) {
-                try {
-                    const data = JSON.parse(sampleData);
-                    employees.push(data);
-                } catch (e) {}
-            }
-
-            return employees;
-        }
-
-        // 获取员工统计
-        function getEmployeeStats(attendance) {
-            if (!attendance) return '暂无数据';
-            
-            const stats = {
-                normal: 0,
-                field: 0,
-                trip: 0,
-                leave: 0
-            };
-
-            Object.values(attendance).forEach(day => {
-                if (day.status) {
-                    stats[day.status]++;
-                }
-            });
-
-            return `正常${stats.normal}天 野外${stats.field}天`;
-        }
-
-        // 查看员工详情
         function viewEmployee(employee) {
             currentEmployee = employee;
             detailDate = new Date();
@@ -455,34 +527,20 @@
             document.getElementById('noticeCard').style.display = 'none';
             document.getElementById('employeeDetailCard').style.display = 'block';
             
-            document.getElementById('detailAvatar').src = employee.avatar || 'https://via.placeholder.com/100/ffb6d9/ffffff?text=?';
-            document.getElementById('detailName').textContent = employee.nickname || '未命名';
+            document.getElementById('detailAvatar').src = employee.avatar;
+            document.getElementById('detailName').textContent = employee.nickname;
             
             updateDetailView();
         }
 
-        // 更新详情视图
         function updateDetailView() {
             updateDetailStats();
             updateDetailMonth();
             renderDetailCalendar();
         }
 
-        // 更新统计信息
         function updateDetailStats() {
-            const attendance = currentEmployee.attendance || {};
-            const stats = {
-                normal: 0,
-                field: 0,
-                trip: 0,
-                leave: 0
-            };
-
-            Object.values(attendance).forEach(day => {
-                if (day.status) {
-                    stats[day.status]++;
-                }
-            });
+            const stats = currentEmployee.stats;
 
             const html = `
                 <div class="stat-card">
@@ -510,7 +568,6 @@
             document.getElementById('statsGrid').innerHTML = html;
         }
 
-        // 月份导航
         function changeDetailMonth(delta) {
             detailDate.setMonth(detailDate.getMonth() + delta);
             updateDetailMonth();
@@ -523,7 +580,6 @@
             document.getElementById('detailMonthDisplay').textContent = `${year}年${month}月`;
         }
 
-        // 渲染考勤日历
         function renderDetailCalendar() {
             const year = detailDate.getFullYear();
             const month = detailDate.getMonth();
@@ -544,8 +600,8 @@
             }
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const key = `${year}-${month + 1}-${day}`;
-                const data = attendance[key];
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const data = attendance[dateStr];
                 const icon = data ? statusIcons[data.status] : '';
                 const location = data ? data.location : '';
                 
@@ -562,7 +618,6 @@
             document.getElementById('detailCalendar').innerHTML = html;
         }
 
-        // 返回列表
         function backToList() {
             document.getElementById('employeeListCard').style.display = 'block';
             document.getElementById('noticeCard').style.display = 'block';
