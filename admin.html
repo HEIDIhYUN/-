@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 管理员后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #ffe5f1 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #ff69b4;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.15);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #ff69b4;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .notice-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .notice-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ffb6d9;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
+        }
+
+        .employee-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .employee-card {
+            background: #fff0f6;
+            border: 2px solid #ffb6d9;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .employee-card:hover {
+            background: #ffe5f1;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+        }
+
+        .employee-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #ffb6d9;
+            margin: 0 auto 10px;
+        }
+
+        .employee-name {
+            color: #ff1493;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .employee-stats {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .calendar-view {
+            margin-top: 20px;
+        }
+
+        .month-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff0f6;
+            border-radius: 15px;
+        }
+
+        .month-btn {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .month-btn:hover {
+            background: #ff1493;
+            transform: scale(1.1);
+        }
+
+        .month-display {
+            font-size: 20px;
+            color: #ff1493;
+            font-weight: bold;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            padding: 10px;
+            color: #ff69b4;
+            font-weight: bold;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffe5f1;
+            border-radius: 10px;
+            background: white;
+            position: relative;
+        }
+
+        .calendar-day.empty {
+            background: transparent;
+            border: none;
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .day-status {
+            font-size: 24px;
+        }
+
+        .day-location {
+            font-size: 10px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff0f6;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            color: #ff1493;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: white;
+            color: #ff69b4;
+            border: 2px solid #ff69b4;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn:hover {
+            background: #fff0f6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 管理员后台 🌸</h1>
+            <p style="color: #ff69b4;">查看和管理所有员工考勤</p>
+        </div>
+
+        <!-- 通知管理 -->
+        <div class="card" id="noticeCard">
+            <div class="card-title">📢 发布通知</div>
+            <div class="notice-form">
+                <input type="text" class="notice-input" id="noticeInput" placeholder="输入通知内容...">
+                <button class="btn-primary" onclick="publishNotice()">发布</button>
+            </div>
+            <div id="currentNotice" style="padding: 15px; background: #fff0f6; border-radius: 10px; color: #ff1493;">
+                当前通知: <span id="noticeText">暂无通知</span>
+            </div>
+        </div>
+
+        <!-- 员工列表 -->
+        <div class="card" id="employeeListCard">
+            <div class="card-title">👥 员工列表</div>
+            <div class="employee-list" id="employeeList">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <p>暂无员工数据</p>
+                    <p style="font-size: 14px; margin-top: 10px;">员工提交考勤后会自动显示在这里</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 员工详情 -->
+        <div class="card" id="employeeDetailCard" style="display: none;">
+            <button class="back-btn" onclick="backToList()">← 返回列表</button>
+            
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+                <img id="detailAvatar" src="" alt="头像" style="width: 100px; height: 100px; border-radius: 50%; border: 4px solid #ffb6d9;">
+                <div>
+                    <h2 id="detailName" style="color: #ff1493; margin-bottom: 10px;"></h2>
+                    <div id="detailStats" style="color: #666;"></div>
+                </div>
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- 月份导航 -->
+            <div class="month-nav">
+                <button class="month-btn" onclick="changeDetailMonth(-1)">←</button>
+                <div class="month-display" id="detailMonthDisplay"></div>
+                <button class="month-btn" onclick="changeDetailMonth(1)">→</button>
+            </div>
+
+            <!-- 考勤日历 -->
+            <div class="calendar-view">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span>🏢</span><span style="font-size: 14px;">正常上班</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span>⛰️</span><span style="font-size: 14px;">野外工作</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span>✈️</span><span style="font-size: 14px;">出差</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span>🏖️</span><span style="font-size: 14px;">请假</span>
+                    </div>
+                </div>
+                <div id="detailCalendar"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const statusIcons = {
+            'normal': '🏢',
+            'field': '⛰️',
+            'trip': '✈️',
+            'leave': '🏖️'
+        };
+
+        const statusNames = {
+            'normal': '正常上班',
+            'field': '野外工作',
+            'trip': '出差',
+            'leave': '请假'
+        };
+
+        let currentEmployee = null;
+        let detailDate = new Date();
+
+        // 初始化
+        function init() {
+            loadNotice();
+            loadEmployees();
+        }
+
+        // 通知管理
+        function loadNotice() {
+            const notice = localStorage.getItem('adminNotice') || '欢迎使用考勤系统!记得每天打卡哦~';
+            document.getElementById('noticeText').textContent = notice;
+        }
+
+        function publishNotice() {
+            const notice = document.getElementById('noticeInput').value.trim();
+            if (!notice) {
+                alert('请输入通知内容!');
+                return;
+            }
+            localStorage.setItem('adminNotice', notice);
+            document.getElementById('noticeText').textContent = notice;
+            document.getElementById('noticeInput').value = '';
+            alert('通知发布成功!');
+        }
+
+        // 加载员工列表
+        function loadEmployees() {
+            // 模拟数据 - 实际使用时需要从服务器获取
+            const employees = getEmployeesFromStorage();
+            
+            if (employees.length === 0) {
+                return;
+            }
+
+            const html = employees.map(emp => `
+                <div class="employee-card" onclick='viewEmployee(${JSON.stringify(emp).replace(/'/g, "&apos;")})'>
+                    <img src="${emp.avatar || 'https://via.placeholder.com/80/ffb6d9/ffffff?text=' + (emp.nickname || '?')}" 
+                         alt="头像" class="employee-avatar">
+                    <div class="employee-name">${emp.nickname || '未命名'}</div>
+                    <div class="employee-stats">
+                        ${getEmployeeStats(emp.attendance)}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('employeeList').innerHTML = html;
+        }
+
+        // 从localStorage获取员工数据
+        function getEmployeesFromStorage() {
+            const employees = [];
+            
+            // 这里需要一个约定：每个员工的数据存储在独立的key中
+            // 实际应用中应该有一个中央数据库
+            
+            // 示例：假设员工导出的数据被管理员导入
+            const sampleData = localStorage.getItem('employeeData');
+            if (sampleData) {
+                try {
+                    const data = JSON.parse(sampleData);
+                    employees.push(data);
+                } catch (e) {}
+            }
+
+            return employees;
+        }
+
+        // 获取员工统计
+        function getEmployeeStats(attendance) {
+            if (!attendance) return '暂无数据';
+            
+            const stats = {
+                normal: 0,
+                field: 0,
+                trip: 0,
+                leave: 0
+            };
+
+            Object.values(attendance).forEach(day => {
+                if (day.status) {
+                    stats[day.status]++;
+                }
+            });
+
+            return `正常${stats.normal}天 野外${stats.field}天`;
+        }
+
+        // 查看员工详情
+        function viewEmployee(employee) {
+            currentEmployee = employee;
+            detailDate = new Date();
+            
+            document.getElementById('employeeListCard').style.display = 'none';
+            document.getElementById('noticeCard').style.display = 'none';
+            document.getElementById('employeeDetailCard').style.display = 'block';
+            
+            document.getElementById('detailAvatar').src = employee.avatar || 'https://via.placeholder.com/100/ffb6d9/ffffff?text=?';
+            document.getElementById('detailName').textContent = employee.nickname || '未命名';
+            
+            updateDetailView();
+        }
+
+        // 更新详情视图
+        function updateDetailView() {
+            updateDetailStats();
+            updateDetailMonth();
+            renderDetailCalendar();
+        }
+
+        // 更新统计信息
+        function updateDetailStats() {
+            const attendance = currentEmployee.attendance || {};
+            const stats = {
+                normal: 0,
+                field: 0,
+                trip: 0,
+                leave: 0
+            };
+
+            Object.values(attendance).forEach(day => {
+                if (day.status) {
+                    stats[day.status]++;
+                }
+            });
+
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-icon">🏢</div>
+                    <div class="stat-value">${stats.normal}</div>
+                    <div class="stat-label">正常上班</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⛰️</div>
+                    <div class="stat-value">${stats.field}</div>
+                    <div class="stat-label">野外工作</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✈️</div>
+                    <div class="stat-value">${stats.trip}</div>
+                    <div class="stat-label">出差</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏖️</div>
+                    <div class="stat-value">${stats.leave}</div>
+                    <div class="stat-label">请假</div>
+                </div>
+            `;
+
+            document.getElementById('statsGrid').innerHTML = html;
+        }
+
+        // 月份导航
+        function changeDetailMonth(delta) {
+            detailDate.setMonth(detailDate.getMonth() + delta);
+            updateDetailMonth();
+            renderDetailCalendar();
+        }
+
+        function updateDetailMonth() {
+            const year = detailDate.getFullYear();
+            const month = detailDate.getMonth() + 1;
+            document.getElementById('detailMonthDisplay').textContent = `${year}年${month}月`;
+        }
+
+        // 渲染考勤日历
+        function renderDetailCalendar() {
+            const year = detailDate.getFullYear();
+            const month = detailDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const attendance = currentEmployee.attendance || {};
+
+            let html = '<div class="calendar-grid">';
+            
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekDays.forEach(day => {
+                html += `<div class="calendar-header">${day}</div>`;
+            });
+
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="calendar-day empty"></div>`;
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const key = `${year}-${month + 1}-${day}`;
+                const data = attendance[key];
+                const icon = data ? statusIcons[data.status] : '';
+                const location = data ? data.location : '';
+                
+                html += `
+                    <div class="calendar-day">
+                        <div class="day-number">${day}</div>
+                        <div class="day-status">${icon}</div>
+                        ${location ? `<div class="day-location">${location}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            html += '</div>';
+            document.getElementById('detailCalendar').innerHTML = html;
+        }
+
+        // 返回列表
+        function backToList() {
+            document.getElementById('employeeListCard').style.display = 'block';
+            document.getElementById('noticeCard').style.display = 'block';
+            document.getElementById('employeeDetailCard').style.display = 'none';
+            currentEmployee = null;
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
