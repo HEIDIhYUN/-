@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🌸 考勤打卡系统</title>
-    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.15.0/dist/av-min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,7 +19,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -46,110 +45,12 @@
             border-radius: 25px;
             box-shadow: 0 8px 20px rgba(255, 105, 180, 0.15);
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '🐕';
-            position: absolute;
-            font-size: 50px;
-            top: 10px;
-            left: 20px;
-            opacity: 0.3;
-        }
-
-        .header::after {
-            content: '🐕';
-            position: absolute;
-            font-size: 50px;
-            top: 10px;
-            right: 20px;
-            opacity: 0.3;
         }
 
         .header h1 {
             color: #ff69b4;
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 10px;
-        }
-
-        .notice-board {
-            background: #fff0f6;
-            border: 2px dashed #ff69b4;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-            animation: slideIn 0.5s ease;
-        }
-
-        .notice-title {
-            color: #ff1493;
-            font-weight: bold;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-        }
-
-        .notice-title::before {
-            content: '📢';
-            margin-right: 8px;
-        }
-
-        .user-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 8px 20px rgba(255, 105, 180, 0.15);
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .avatar-container {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 15px;
-        }
-
-        .avatar {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            border: 4px solid #ffb6d9;
-            object-fit: cover;
-        }
-
-        .avatar-upload {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #ff69b4;
-            color: white;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 18px;
-        }
-
-        .nickname-input {
-            font-size: 18px;
-            color: #ff1493;
-            border: none;
-            border-bottom: 2px solid #ffb6d9;
-            text-align: center;
-            padding: 5px;
-            margin: 10px 0;
-            width: 200px;
-        }
-
-        .nickname-input:focus {
-            outline: none;
-            border-bottom-color: #ff69b4;
         }
 
         .card {
@@ -162,7 +63,7 @@
 
         .card-title {
             color: #ff69b4;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
             margin-bottom: 20px;
             display: flex;
@@ -174,42 +75,33 @@
             margin-right: 10px;
         }
 
-        .month-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .form-group {
             margin-bottom: 20px;
-            padding: 15px;
-            background: #fff0f6;
-            border-radius: 15px;
         }
 
-        .month-btn {
-            background: #ff69b4;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .month-btn:hover {
-            background: #ff1493;
-            transform: scale(1.1);
-        }
-
-        .month-display {
-            font-size: 20px;
+        .form-label {
+            display: block;
             color: #ff1493;
             font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffb6d9;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ff69b4;
         }
 
         .location-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -237,82 +129,11 @@
             border-color: #ff69b4;
         }
 
-        .custom-location {
-            grid-column: 1 / -1;
-        }
-
-        .custom-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ffb6d9;
-            border-radius: 10px;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-
-        .calendar {
-            margin: 20px 0;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-        }
-
-        .calendar-header {
-            text-align: center;
-            padding: 10px;
-            color: #ff69b4;
-            font-weight: bold;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #ffe5f1;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: white;
-            position: relative;
-        }
-
-        .calendar-day:hover {
-            border-color: #ff69b4;
-            transform: scale(1.05);
-        }
-
-        .calendar-day.empty {
-            cursor: default;
-            background: transparent;
-            border: none;
-        }
-
-        .calendar-day.selected {
-            background: #ff69b4;
-            color: white;
-            border-color: #ff69b4;
-        }
-
-        .day-number {
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        .day-status {
-            font-size: 20px;
-            margin-top: 2px;
-        }
-
         .status-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
 
         .status-btn {
@@ -326,6 +147,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-size: 16px;
         }
 
         .status-btn:hover {
@@ -349,7 +171,6 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
         }
 
         .btn-primary:hover {
@@ -357,18 +178,31 @@
             box-shadow: 0 10px 25px rgba(255, 105, 180, 0.3);
         }
 
-        .btn-secondary {
+        .summary-table {
             width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .summary-table th,
+        .summary-table td {
             padding: 12px;
-            background: white;
-            color: #ff69b4;
-            border: 2px solid #ff69b4;
-            border-radius: 20px;
-            font-size: 16px;
+            text-align: left;
+            border-bottom: 1px solid #ffe5f1;
+        }
+
+        .summary-table th {
+            background: #fff0f6;
+            color: #ff1493;
             font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+        }
+
+        .summary-table tr:hover {
+            background: #fff0f6;
+        }
+
+        .status-icon {
+            font-size: 20px;
         }
 
         .success-overlay {
@@ -418,19 +252,10 @@
             100% { transform: rotate(360deg) scale(1); }
         }
 
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        input[type="file"] {
-            display: none;
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
         }
     </style>
 </head>
@@ -440,85 +265,63 @@
     <div class="container">
         <div class="header">
             <h1>🌸 考勤打卡系统 🌸</h1>
-            <p style="color: #ff69b4;">记录每一天的努力~</p>
+            <p style="color: #ff69b4;">上方打卡,下方查看所有人考勤汇总</p>
         </div>
 
-        <div class="notice-board" id="noticeBoard">
-            <div class="notice-title">📢 通知公告</div>
-            <div id="noticeContent">加载中...</div>
-        </div>
-
-        <div class="user-card">
-            <div class="avatar-container">
-                <img src="https://via.placeholder.com/100/ffb6d9/ffffff?text=👤" alt="头像" class="avatar" id="avatarImg">
-                <label for="avatarUpload" class="avatar-upload">📷</label>
-                <input type="file" id="avatarUpload" accept="image/*">
-            </div>
-            <input type="text" class="nickname-input" id="nicknameInput" placeholder="输入你的昵称">
-        </div>
-
+        <!-- 打卡区域 -->
         <div class="card">
-            <div class="month-nav">
-                <button class="month-btn" onclick="changeMonth(-1)">←</button>
-                <div class="month-display" id="monthDisplay"></div>
-                <button class="month-btn" onclick="changeMonth(1)">→</button>
-            </div>
-
-            <div class="card-title">选择工作地点</div>
-            <div class="location-grid">
-                <button class="location-btn" onclick="selectLocation('成都')">🏢 成都</button>
-                <button class="location-btn" onclick="selectLocation('新疆')">🏔️ 新疆</button>
-                <button class="location-btn" onclick="selectLocation('绵阳')">🌆 绵阳</button>
-                <button class="location-btn" onclick="selectLocation('达州')">🏙️ 达州</button>
-                <button class="location-btn" onclick="selectLocation('广元')">🌄 广元</button>
-                <button class="location-btn custom-location" onclick="toggleCustomLocation()">✏️ 其他地点</button>
-            </div>
-            <input type="text" class="custom-input" id="customLocation" placeholder="输入自定义地点" style="display: none;">
-
-            <button class="btn-primary" onclick="batchCheckIn()">🌸 一键打卡本月(野外工作)</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">考勤日历 - 点击日期修改</div>
+            <div class="card-title">员工打卡</div>
             
-            <div style="display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; justify-content: center;">
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span>🏢</span><span style="font-size: 14px;">正常</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span>⛰️</span><span style="font-size: 14px;">野外</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span>✈️</span><span style="font-size: 14px;">出差</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span>🏖️</span><span style="font-size: 14px;">请假</span>
-                </div>
+            <div class="form-group">
+                <label class="form-label">姓名</label>
+                <input type="text" class="form-input" id="nameInput" placeholder="输入你的姓名">
             </div>
 
-            <div class="calendar" id="calendar"></div>
+            <div class="form-group">
+                <label class="form-label">日期</label>
+                <input type="date" class="form-input" id="dateInput">
+            </div>
 
-            <div id="dayEditPanel" style="display: none; margin-top: 20px; padding: 20px; background: #fff0f6; border-radius: 15px;">
-                <h3 style="color: #ff69b4; margin-bottom: 15px;" id="editDayTitle"></h3>
+            <div class="form-group">
+                <label class="form-label">工作地点</label>
+                <div class="location-grid">
+                    <button class="location-btn" onclick="selectLocation('成都')">🏢 成都</button>
+                    <button class="location-btn" onclick="selectLocation('新疆')">🏔️ 新疆</button>
+                    <button class="location-btn" onclick="selectLocation('绵阳')">🌆 绵阳</button>
+                    <button class="location-btn" onclick="selectLocation('达州')">🏙️ 达州</button>
+                    <button class="location-btn" onclick="selectLocation('广元')">🌄 广元</button>
+                </div>
+                <input type="text" class="form-input" id="customLocation" placeholder="或输入其他地点">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">考勤状态</label>
                 <div class="status-grid">
-                    <button class="status-btn" onclick="setDayStatus('normal')">
+                    <button class="status-btn" onclick="selectStatus('normal')">
                         <span>🏢</span><span>正常上班</span>
                     </button>
-                    <button class="status-btn" onclick="setDayStatus('field')">
+                    <button class="status-btn" onclick="selectStatus('field')">
                         <span>⛰️</span><span>野外工作</span>
                     </button>
-                    <button class="status-btn" onclick="setDayStatus('trip')">
+                    <button class="status-btn" onclick="selectStatus('trip')">
                         <span>✈️</span><span>出差</span>
                     </button>
-                    <button class="status-btn" onclick="setDayStatus('leave')">
+                    <button class="status-btn" onclick="selectStatus('leave')">
                         <span>🏖️</span><span>请假</span>
                     </button>
                 </div>
-                <button class="btn-secondary" onclick="closeDayEdit()">关闭</button>
             </div>
+
+            <button class="btn-primary" onclick="submitAttendance()">💖 提交考勤</button>
         </div>
 
-        <button class="btn-primary" onclick="submitAttendance()">💖 提交考勤</button>
+        <!-- 汇总表 -->
+        <div class="card">
+            <div class="card-title">考勤汇总 - 所有人记录</div>
+            <div id="summaryContent">
+                <div class="empty-state">加载中...</div>
+            </div>
+        </div>
     </div>
 
     <div class="success-overlay" id="successOverlay">
@@ -529,25 +332,25 @@
     </div>
 
     <script>
-        // 初始化 LeanCloud
-        AV.init({
-            appId: 'p5ZTLy8yMc4i8iPnIYUIZpfk-gzGzoHsz',
-            appKey: 'VFnGdGETCRBPN4qTicpFx7If',
-            serverURL: 'https://p5ztly8y.lc-cn-n1-shared.com'
-        });
-
-        let currentDate = new Date();
+        // 配置
+        const GITHUB_TOKEN = 'ghp_ovvi3ReHuTmpXXe5N1cISsRS0xxu7h1M9dIr'; // 替换成你的 Token
+        const GIST_ID = null; // 初始为空,第一次会自动创建
+        
         let selectedLocation = '';
-        let selectedDay = null;
-        let attendanceData = {};
-        let currentUserId = null;
-        let currentUserObj = null;
+        let selectedStatus = '';
 
         const statusIcons = {
             'normal': '🏢',
             'field': '⛰️',
             'trip': '✈️',
             'leave': '🏖️'
+        };
+
+        const statusNames = {
+            'normal': '正常上班',
+            'field': '野外工作',
+            'trip': '出差',
+            'leave': '请假'
         };
 
         function showLoading() {
@@ -558,121 +361,19 @@
             document.getElementById('loading').style.display = 'none';
         }
 
+        // 初始化
         async function init() {
-            showLoading();
-            await loadNotice();
-            await loadOrCreateUser();
-            updateMonthDisplay();
-            await loadAttendanceData();
-            renderCalendar();
-            hideLoading();
-        }
-
-        async function loadNotice() {
-            try {
-                const query = new AV.Query('Notice');
-                query.descending('createdAt');
-                query.limit(1);
-                const results = await query.find();
-                
-                if (results.length > 0) {
-                    document.getElementById('noticeContent').textContent = results[0].get('content');
-                } else {
-                    document.getElementById('noticeContent').textContent = '欢迎使用考勤系统!记得每天打卡哦~';
-                }
-            } catch (error) {
-                console.error('加载通知失败:', error);
-                document.getElementById('noticeContent').textContent = '欢迎使用考勤系统!';
-            }
-        }
-
-        async function loadOrCreateUser() {
-            const savedUserId = localStorage.getItem('userId');
+            // 设置今天日期
+            document.getElementById('dateInput').valueAsDate = new Date();
             
-            if (savedUserId) {
-                try {
-                    const query = new AV.Query('Users');
-                    currentUserObj = await query.get(savedUserId);
-                    currentUserId = savedUserId;
-                    
-                    document.getElementById('nicknameInput').value = currentUserObj.get('nickname') || '';
-                    const avatar = currentUserObj.get('avatar');
-                    if (avatar) {
-                        document.getElementById('avatarImg').src = avatar;
-                    }
-                } catch (error) {
-                    console.error('加载用户失败:', error);
-                    await createNewUser();
-                }
-            } else {
-                await createNewUser();
+            // 加载 Gist ID
+            const savedGistId = localStorage.getItem('attendanceGistId');
+            if (savedGistId) {
+                window.GIST_ID = savedGistId;
             }
-        }
-
-        async function createNewUser() {
-            const Users = AV.Object.extend('Users');
-            const user = new Users();
-            user.set('nickname', '');
-            user.set('avatar', '');
-            user.set('createdAt', new Date());
             
-            try {
-                const savedUser = await user.save();
-                currentUserId = savedUser.id;
-                currentUserObj = savedUser;
-                localStorage.setItem('userId', currentUserId);
-            } catch (error) {
-                console.error('创建用户失败:', error);
-                alert('初始化失败,请刷新页面重试!');
-            }
-        }
-
-        async function saveUserData() {
-            if (!currentUserObj) return;
-            
-            const nickname = document.getElementById('nicknameInput').value;
-            currentUserObj.set('nickname', nickname);
-            
-            try {
-                await currentUserObj.save();
-            } catch (error) {
-                console.error('保存用户信息失败:', error);
-            }
-        }
-
-        document.getElementById('avatarUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = async function(event) {
-                    const avatar = event.target.result;
-                    document.getElementById('avatarImg').src = avatar;
-                    
-                    if (currentUserObj) {
-                        currentUserObj.set('avatar', avatar);
-                        try {
-                            await currentUserObj.save();
-                        } catch (error) {
-                            console.error('保存头像失败:', error);
-                        }
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        document.getElementById('nicknameInput').addEventListener('blur', saveUserData);
-
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            updateMonthDisplay();
-            loadAttendanceData().then(() => renderCalendar());
-        }
-
-        function updateMonthDisplay() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            document.getElementById('monthDisplay').textContent = `${year}年${month}月`;
+            // 加载数据
+            await loadSummary();
         }
 
         function selectLocation(location) {
@@ -681,199 +382,208 @@
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            document.getElementById('customLocation').style.display = 'none';
+            document.getElementById('customLocation').value = '';
         }
 
-        function toggleCustomLocation() {
-            const input = document.getElementById('customLocation');
-            input.style.display = input.style.display === 'none' ? 'block' : 'none';
-            if (input.style.display === 'block') {
-                input.focus();
-            }
-        }
-
-        async function batchCheckIn() {
-            if (!selectedLocation && !document.getElementById('customLocation').value) {
-                alert('请先选择工作地点!');
-                return;
-            }
-
-            const location = selectedLocation || document.getElementById('customLocation').value;
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            showLoading();
-            
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                attendanceData[dateStr] = {
-                    status: location === '成都' ? 'normal' : 'field',
-                    location: location
-                };
-            }
-
-            await saveAttendanceData();
-            renderCalendar();
-            hideLoading();
-            alert(`已为${year}年${month + 1}月全部打卡!`);
-        }
-
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-            let html = '';
-            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-            
-            weekDays.forEach(day => {
-                html += `<div class="calendar-header">${day}</div>`;
+        function selectStatus(status) {
+            selectedStatus = status;
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
-
-            for (let i = 0; i < firstDay; i++) {
-                html += `<div class="calendar-day empty"></div>`;
-            }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const data = attendanceData[dateStr];
-                const icon = data ? statusIcons[data.status] : '';
-                
-                html += `
-                    <div class="calendar-day" onclick="selectDay(${day})">
-                        <div class="day-number">${day}</div>
-                        <div class="day-status">${icon}</div>
-                    </div>
-                `;
-            }
-
-            document.getElementById('calendar').innerHTML = `<div class="calendar-grid">${html}</div>`;
-        }
-
-        function selectDay(day) {
-            selectedDay = day;
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            document.getElementById('editDayTitle').textContent = `编辑 ${year}年${month}月${day}日`;
-            document.getElementById('dayEditPanel').style.display = 'block';
-        }
-
-        function setDayStatus(status) {
-            if (!selectedDay) return;
-            
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
-            
-            const location = selectedLocation || document.getElementById('customLocation').value || '成都';
-            
-            attendanceData[dateStr] = {
-                status: status,
-                location: location
-            };
-            
-            saveAttendanceData().then(() => {
-                renderCalendar();
-                closeDayEdit();
-            });
-        }
-
-        function closeDayEdit() {
-            document.getElementById('dayEditPanel').style.display = 'none';
-            selectedDay = null;
-        }
-
-        async function loadAttendanceData() {
-            if (!currentUserId) return;
-            
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            const monthStr = `${year}-${String(month).padStart(2, '0')}`;
-            
-            try {
-                const query = new AV.Query('Attendance');
-                query.equalTo('userId', currentUserId);
-                query.equalTo('month', monthStr);
-                const results = await query.find();
-                
-                attendanceData = {};
-                results.forEach(record => {
-                    const date = record.get('date');
-                    attendanceData[date] = {
-                        status: record.get('status'),
-                        location: record.get('location')
-                    };
-                });
-            } catch (error) {
-                console.error('加载考勤数据失败:', error);
-            }
-        }
-
-        async function saveAttendanceData() {
-            if (!currentUserId) return;
-            
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            const monthStr = `${year}-${String(month).padStart(2, '0')}`;
-            
-            try {
-                // 删除本月旧数据
-                const query = new AV.Query('Attendance');
-                query.equalTo('userId', currentUserId);
-                query.equalTo('month', monthStr);
-                const oldRecords = await query.find();
-                await AV.Object.destroyAll(oldRecords);
-                
-                // 保存新数据
-                const Attendance = AV.Object.extend('Attendance');
-                const savePromises = [];
-                
-                for (const [date, data] of Object.entries(attendanceData)) {
-                    if (date.startsWith(monthStr)) {
-                        const record = new Attendance();
-                        record.set('userId', currentUserId);
-                        record.set('month', monthStr);
-                        record.set('date', date);
-                        record.set('status', data.status);
-                        record.set('location', data.location);
-                        savePromises.push(record.save());
-                    }
-                }
-                
-                await Promise.all(savePromises);
-            } catch (error) {
-                console.error('保存考勤数据失败:', error);
-                throw error;
-            }
+            event.target.classList.add('active');
         }
 
         async function submitAttendance() {
-            const nickname = document.getElementById('nicknameInput').value;
-            if (!nickname) {
-                alert('请先填写昵称!');
+            const name = document.getElementById('nameInput').value.trim();
+            const date = document.getElementById('dateInput').value;
+            const customLocation = document.getElementById('customLocation').value.trim();
+            const location = customLocation || selectedLocation;
+
+            if (!name) {
+                alert('请输入姓名!');
+                return;
+            }
+
+            if (!date) {
+                alert('请选择日期!');
+                return;
+            }
+
+            if (!location) {
+                alert('请选择工作地点!');
+                return;
+            }
+
+            if (!selectedStatus) {
+                alert('请选择考勤状态!');
                 return;
             }
 
             showLoading();
-            
+
             try {
-                await saveUserData();
-                await saveAttendanceData();
+                const record = {
+                    name: name,
+                    date: date,
+                    location: location,
+                    status: selectedStatus,
+                    timestamp: new Date().toISOString()
+                };
+
+                await saveToGist(record);
                 
                 hideLoading();
-                
+
+                // 显示成功动画
                 const overlay = document.getElementById('successOverlay');
                 overlay.style.display = 'flex';
                 
                 setTimeout(() => {
                     overlay.style.display = 'none';
+                    loadSummary();
                 }, 2000);
+
             } catch (error) {
                 hideLoading();
-                alert('提交失败,请重试!');
                 console.error('提交失败:', error);
+                alert('提交失败,请重试!');
+            }
+        }
+
+        async function saveToGist(record) {
+            try {
+                let gistId = window.GIST_ID || localStorage.getItem('attendanceGistId');
+                let existingData = [];
+
+                if (gistId) {
+                    // 获取现有数据
+                    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const gist = await response.json();
+                        const content = gist.files['attendance.json'].content;
+                        existingData = JSON.parse(content);
+                    }
+                }
+
+                // 添加新记录
+                existingData.push(record);
+
+                const gistData = {
+                    description: '考勤打卡数据',
+                    public: false,
+                    files: {
+                        'attendance.json': {
+                            content: JSON.stringify(existingData, null, 2)
+                        }
+                    }
+                };
+
+                if (gistId) {
+                    // 更新现有 Gist
+                    await fetch(`https://api.github.com/gists/${gistId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(gistData)
+                    });
+                } else {
+                    // 创建新 Gist
+                    const response = await fetch('https://api.github.com/gists', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(gistData)
+                    });
+
+                    const newGist = await response.json();
+                    gistId = newGist.id;
+                    localStorage.setItem('attendanceGistId', gistId);
+                    window.GIST_ID = gistId;
+                }
+
+            } catch (error) {
+                console.error('保存到 Gist 失败:', error);
+                throw error;
+            }
+        }
+
+        async function loadSummary() {
+            const gistId = window.GIST_ID || localStorage.getItem('attendanceGistId');
+            
+            if (!gistId) {
+                document.getElementById('summaryContent').innerHTML = '<div class="empty-state">暂无考勤记录</div>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.github.com/gists/${gistId}`, {
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('加载失败');
+                }
+
+                const gist = await response.json();
+                const content = gist.files['attendance.json'].content;
+                const data = JSON.parse(content);
+
+                if (data.length === 0) {
+                    document.getElementById('summaryContent').innerHTML = '<div class="empty-state">暂无考勤记录</div>';
+                    return;
+                }
+
+                // 按日期倒序排列
+                data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                let html = `
+                    <table class="summary-table">
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>日期</th>
+                                <th>地点</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                data.forEach(record => {
+                    html += `
+                        <tr>
+                            <td>${record.name}</td>
+                            <td>${record.date}</td>
+                            <td>${record.location}</td>
+                            <td>
+                                <span class="status-icon">${statusIcons[record.status]}</span>
+                                ${statusNames[record.status]}
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+
+                document.getElementById('summaryContent').innerHTML = html;
+
+            } catch (error) {
+                console.error('加载汇总失败:', error);
+                document.getElementById('summaryContent').innerHTML = '<div class="empty-state">加载失败</div>';
             }
         }
 
